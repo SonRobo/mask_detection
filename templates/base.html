@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Page</title>
+  </head>
+  <body>
+    <form id="imageForm">
+      <label for="img">Select image:</label>
+      <input type="file" id="img" name="img" accept="image/*" />
+      <input type="submit" />
+    </form>
+    <!-- Form for video upload -->
+    <form id="videoForm" enctype="multipart/form-data">
+      <label for="video">Select video:</label>
+      <input type="file" id="video" name="video" accept="video/*" />
+      <input type="submit" value="Upload Video" />
+    </form>
+
+    <form id="apiTestForm">
+      <input type="submit" value="Submit" />
+    </form>
+    <!-- <img
+      id="test-image"
+      src="/static/processed/processed_gettyimages-1407189676-612x612.jpg"
+    /> -->
+    <img id="result-image" alt="Returned Image" />
+    <!-- Display processed video -->
+    <video id="result-video" width="640" height="480" controls>
+      Your browser does not support the video tag.
+    </video>
+    <!-- Video feed display -->
+    <video id="video-feed" width="640" height="480" autoplay muted></video>
+
+    <script src="{{ url_for('static', filename='src/getImage.js') }}"></script>
+    <script src="{{ url_for('static', filename='src/testApi.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='src/getVideo.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='src/webcamSimualte.js') }}"></script>
+
+  </body>
+</html>

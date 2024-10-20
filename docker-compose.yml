@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development   # Set environment variable for Flask
+    volumes:
+      - .:/app  # Mount current directory to /app in the container
+    command: python main.py  # Run Flask app with Gunicorn
