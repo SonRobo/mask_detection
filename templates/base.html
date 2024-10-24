@@ -19,7 +19,7 @@
     </form>
 
     <form id="apiTestForm">
-      <input type="submit" value="Submit" name="Test"/>
+      <input type="submit" value="Submit" name="Test" />
     </form>
     <!-- <img
       id="test-image"
@@ -32,11 +32,14 @@
     </video>
     <!-- Video feed display -->
     <video id="video-feed" width="640" height="480" autoplay muted></video>
+    <button onclick="startWebcam()">Start Webcam</button>
+    <br /><br />
+    <img id="webcam-frame" src="" width="640" height="480" />
 
     <script src="{{ url_for('static', filename='src/getImage.js') }}"></script>
     <script src="{{ url_for('static', filename='src/testApi.js') }}"></script>
     <!-- <script src="{{ url_for('static', filename='src/getVideo.js') }}"></script> -->
     <script src="{{ url_for('static', filename='src/webcamSimualte.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='src/webcam.js') }}"></script>
   </body>
 </html>

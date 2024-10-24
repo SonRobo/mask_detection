@@ -1,4 +1,4 @@
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, Response
 from config import app
 import os
 from werkzeug.utils import secure_filename
@@ -124,8 +124,32 @@ def video_feed():
     return jsonify({"message": "Video processed and saved successfully", "output_file": f'/{processed_video_path}'})
 
 
+# Video streaming generator function
+def generate_frames():
+    model = load_model()
+    cap = cv2.VideoCapture(0)  # Capture from webcam
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+        else:
+            # Process the frame using the model
+            frame = process_image(frame, model)
+            
+            # Encode the frame
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            
+            # Yield the frame in byte format
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/webcam', methods=['POST', 'GET'])
+def webcam_process():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 if __name__ == '__main__':
     # with app.app_context():
     #     db.create_all()
 
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
