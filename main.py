@@ -128,6 +128,10 @@ def video_feed():
 def generate_frames():
     model = load_model()
     cap = cv2.VideoCapture(0)  # Capture from webcam
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+    else:
+        print("Webcam is accessible.")
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
