@@ -128,21 +128,15 @@ def video_feed():
 def generate_frames():
     model = load_model()
     cap = cv2.VideoCapture(0)  # Capture from webcam
-    while True:
-        success, frame = cap.read()
-        if not success:
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
             break
-        else:
-            # Process the frame using the model
-            frame = process_image(frame, model)
-            
-            # Encode the frame
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            
-            # Yield the frame in byte format
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        frame = process_image(frame, model)
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @app.route('/webcam', methods=['POST', 'GET'])
 def webcam_process():
