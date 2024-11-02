@@ -86,8 +86,36 @@ def mask_detection():
     return jsonify({"imageUrl": f'/{processed_filepath}'})
 
     
-@app.route('/video_feed', methods=['POST', 'GET'])
-def video_feed():
+# @app.route('/video_feed', methods=['POST', 'GET'])
+# def video_feed():
+#     if 'video' not in request.files:
+#         return jsonify({"error": "No video file part"}), 400
+
+#     video = request.files['video']
+#     if video.filename == '':
+#         return jsonify({"error": "No selected video"}), 400
+
+#     filepath = save_file(video, PROCESSED_FOLDER, 'original')
+    
+#     # Load video and model
+#     cap = cv2.VideoCapture(filepath)
+#     model = load_model()
+    
+#     def generate_video_frames():
+#         while cap.isOpened():
+#             ret, frame = cap.read()
+#             if not ret:
+#                 break
+#             frame = process_image(frame, model)  # Process each frame for mask detection
+#             ret, buffer = cv2.imencode('.jpg', frame)
+#             frame = buffer.tobytes()
+#             yield (b'--frame\r\n'
+#                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+#     return Response(generate_video_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/video_feed', methods=['POST'])
+def video_feed_upload():
     if 'video' not in request.files:
         return jsonify({"error": "No video file part"}), 400
 
@@ -97,31 +125,35 @@ def video_feed():
 
     filepath = save_file(video, PROCESSED_FOLDER, 'original')
     
-    # Load video and model
+    # Save the file path in session or a global variable if you want to access it later
+    # (this is just for demonstration; consider using a better approach for production)
+    app.config['VIDEO_PATH'] = filepath
+
+    return jsonify({"message": "Video uploaded successfully"})
+
+
+@app.route('/video_stream', methods=['GET'])
+def video_feed_stream():
+    if 'VIDEO_PATH' not in app.config:
+        return jsonify({"error": "No video uploaded"}), 400
+
+    filepath = app.config['VIDEO_PATH']
     cap = cv2.VideoCapture(filepath)
     model = load_model()
     
-    # Prepare output video writer
-    processed_video_path = save_file(video, PROCESSED_FOLDER, 'processed')
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
-    out = cv2.VideoWriter(processed_video_path, fourcc, fps, (frame_width, frame_height))
-    
-    # Process frames and save
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-        frame = process_image(frame, model)
-        out.write(frame)
-    
-    cap.release()
-    out.release()
-    
-    return jsonify({"message": "Video processed and saved successfully", "output_file": f'/{processed_video_path}'})
+    def generate_video_frames():
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frame = process_image(frame, model)  # Process each frame for mask detection
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    return Response(generate_video_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 
 # Video streaming generator function
@@ -136,11 +168,11 @@ def generate_frames():
         ret, frame = cap.read()
         if not ret:
             break
-        frame = process_image(frame, model)
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        for processed_frame in process_image(frame, model):
+            ret, buffer = cv2.imencode('.jpg', processed_frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @app.route('/webcam', methods=['POST', 'GET'])
 def webcam_process():

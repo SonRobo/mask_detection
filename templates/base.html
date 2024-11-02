@@ -21,17 +21,12 @@
     <form id="apiTestForm">
       <input type="submit" value="Submit" name="Test" />
     </form>
-    <!-- <img
-      id="test-image"
-      src="/static/processed/processed_gettyimages-1407189676-612x612.jpg"
-    /> -->
     <img id="result-image" alt="Returned Image" />
     <!-- Display processed video -->
-    <video id="result-video" width="640" height="480" controls>
+    <video id="video-source" width="640" height="480" controls autoplay>
       Your browser does not support the video tag.
     </video>
-    <!-- Video feed display -->
-    <video id="video-feed" width="640" height="480" autoplay muted></video>
+
     <button onclick="startWebcam()">Start Webcam</button>
     <br /><br />
     <img id="webcam-frame" src="" width="640" height="480" />

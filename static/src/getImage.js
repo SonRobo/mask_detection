@@ -1,3 +1,5 @@
+const serverUrl = `${window.location.protocol}//${window.location.host}/mask_detection`;
+
 document
   .getElementById("imageForm")
   .addEventListener("submit", async function (e) {
@@ -9,7 +11,7 @@ document
     formData.append("img", fileField.files[0]); // Append the selected file
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/mask_detection", {
+      const response = await fetch(serverUrl, {
         method: "POST",
         body: formData,
       });

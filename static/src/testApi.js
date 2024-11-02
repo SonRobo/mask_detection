@@ -1,10 +1,12 @@
+const serverUrl = `${window.location.protocol}//${window.location.host}/test_api`;
+
 document
   .getElementById("apiTestForm")
   .addEventListener("submit", async function (e) {
     e.preventDefault(); // Prevent the default form submission
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/test_api", {
+      const response = await fetch(serverUrl, {
         method: "GET",
       });
 
